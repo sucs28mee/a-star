@@ -17,20 +17,30 @@ fn main() {
         serde_json::from_slice::<Vec<Grid2D<u8>>>(include_bytes!("../labyrinths.json")).unwrap();
 
     for mut grid in grids.into_iter() {
-        let start = grid
+        let Some(start) = grid
             .enumerate()
             .find(|(_, _, x)| **x == 2)
-            .map(|(i, j, _)| (i, j))
-            .expect("Start not found!");
+            .map(|(i, j, _)| (i, j)) else 
+        {
+            println!("Start not found!");
+            continue;
+        };
 
-        let end = grid
+        let Some(end) = grid
             .enumerate()
             .find(|(_, _, x)| **x == 3)
-            .map(|(i, j, _)| (i, j))
-            .expect("End not found!");
+            .map(|(i, j, _)| (i, j)) else 
+        {
+            println!("End not found!");
+            continue;
+        };
 
         let instant = Instant::now();
-        let path = a_star::shortest_path(&grid, start, end).unwrap();
+        let Some(path) = a_star::shortest_path(&grid, start, end) else {
+            println!("Path not found!");
+            continue;
+        };
+        
         println!("\nT: {:?}", instant.elapsed());
 
         for coord in path {
